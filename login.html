@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="description" content="Đăng nhập khu vực quản trị FlightWatcher.">
+    <meta name="theme-color" content="#08111f">
+    <script>
+        (() => {
+            const mode = localStorage.getItem('theme_mode') || 'auto';
+            const dark = mode === 'dark' || (mode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+            const resolved = dark ? 'dark' : 'light';
+            document.documentElement.dataset.theme = resolved;
+            document.documentElement.dataset.themeMode = mode;
+            document.documentElement.style.colorScheme = resolved;
+        })();
+    </script>
+    <title>Đăng nhập quản trị | FlightWatcher</title>
+<script src="js/runtime.js?v=8.8.0"></script>
+<link href="vendor/bootstrap.min.css?v=8.8.0" rel="stylesheet"/>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest', observeMutations: true, showMissingIcons: false };</script>
+<script defer src="vendor/fontawesome/all.min.js?v=8.8.0"></script>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css?v=8.8.0">
+    <link rel="stylesheet" href="css/responsive.css?v=8.9.0">
+    <script src="js/auth.js?v=8.8.0"></script>
+</head>
+<body class="admin-login-page">
+    <main class="login-shell">
+        <section class="login-visual" aria-label="FlightWatcher Admin">
+            <div class="login-visual-overlay"></div>
+            <div class="login-visual-content">
+                <a class="login-brand" href="index.html" aria-label="FlightWatcher">
+                    <span><i class="fa-solid fa-plane-up"></i></span>
+                    <strong>FlightWatcher</strong>
+                </a>
+                <div class="login-visual-copy">
+                    <span class="login-security-badge"><i class="fa-solid fa-shield-halved"></i><span data-login-i18n="security">Khu vực quản trị được bảo vệ</span></span>
+                    <h1 data-login-i18n="subtitle">Truy cập trung tâm vận hành FlightWatcher</h1>
+                    <p data-login-i18n="securityText">Phiên đăng nhập có thời hạn và sẽ được kiểm tra trước khi tải dữ liệu MockAPI.</p>
+                </div>
+                <div class="login-feature-grid">
+                    <article><i class="fa-solid fa-database"></i><div><strong>MockAPI CRUD</strong><small>GET · POST · PUT · DELETE</small></div></article>
+                    <article><i class="fa-solid fa-chart-line"></i><div><strong>Smart dashboard</strong><small>Analytics & validation</small></div></article>
+                    <article><i class="fa-solid fa-clock-rotate-left"></i><div><strong>Session control</strong><small>Expiry & lockout</small></div></article>
+                </div>
+            </div>
+        </section>
+
+        <section class="login-panel">
+            <div class="login-panel-tools">
+                <select id="login-language" class="login-tool-select" aria-label="Ngôn ngữ">
+                    <option value="vi">🇻🇳 VI</option>
+                    <option value="en">🇬🇧 EN</option>
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="de">🇩🇪 DE</option>
+                    <option value="ru">🇷🇺 RU</option>
+                    <option value="th">🇹🇭 ไทย</option>
+                </select>
+                <div class="login-theme-switch" role="group" aria-label="Chế độ giao diện">
+                    <button type="button" data-login-theme="auto" title="Tự động"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                    <button type="button" data-login-theme="light" title="Sáng"><i class="fa-regular fa-sun"></i></button>
+                    <button type="button" data-login-theme="dark" title="Tối"><i class="fa-regular fa-moon"></i></button>
+                </div>
+            </div>
+
+            <div class="login-form-wrap">
+                <div class="login-mobile-brand"><span><i class="fa-solid fa-plane-up"></i></span><strong>FlightWatcher</strong></div>
+                <span class="login-kicker">ADMIN CONSOLE</span>
+                <h2 data-login-i18n="title">Đăng nhập quản trị</h2>
+                <p data-login-i18n="subtitle">Truy cập trung tâm vận hành FlightWatcher</p>
+
+                <form id="login-form" novalidate autocomplete="on">
+                    <div id="login-message" class="login-message" role="alert" aria-live="polite" hidden></div>
+                    <div class="login-field">
+                        <label for="login-username" data-login-i18n="username">Tài khoản</label>
+                        <div class="login-input-wrap"><i class="fa-regular fa-user"></i><input class="form-control" id="login-username" name="username" type="text" autocomplete="username" maxlength="40" required></div>
+                    </div>
+                    <div class="login-field">
+                        <label for="login-password" data-login-i18n="password">Mật khẩu</label>
+                        <div class="login-input-wrap"><i class="fa-solid fa-lock"></i><input class="form-control" id="login-password" name="password" type="password" autocomplete="current-password" maxlength="80" required><button type="button" id="toggle-password" data-visible="false" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye"></i></button></div>
+                    </div>
+                    <div class="form-check login-remember"><input class="form-check-input" type="checkbox" id="remember-session"><label class="form-check-label" for="remember-session" data-login-i18n="remember">Duy trì đăng nhập trên thiết bị này</label></div>
+                    <button class="btn btn-primary login-submit" id="login-submit" type="submit"><i class="fa-solid fa-arrow-right-to-bracket"></i><span data-login-i18n="signIn">Đăng nhập</span></button>
+                </form>
+
+                <div class="login-demo-note"><i class="fa-solid fa-circle-info"></i><div><strong data-login-i18n="demoNotice">Bảo mật dành cho bài tập front-end</strong><p data-login-i18n="demoText">Ứng dụng tĩnh không có backend; cơ chế này bảo vệ giao diện demo, không bảo vệ trực tiếp endpoint MockAPI.</p></div></div>
+                <a class="login-back-link" href="index.html"><i class="fa-solid fa-arrow-left"></i><span data-login-i18n="publicSite">Về trang khách</span></a>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/login.js?v=8.8.0"></script>
+</body>
+</html>

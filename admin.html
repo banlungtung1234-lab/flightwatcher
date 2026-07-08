@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlightWatcher Admin - quản lý chuyến bay và đồng bộ dữ liệu MockAPI.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#f6f8fc">
+    <script>
+        (() => {
+            const legacy = localStorage.getItem('theme');
+            const mode = localStorage.getItem('theme_mode') || ((legacy === 'dark' || legacy === 'light') ? legacy : 'auto');
+            const dark = mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const resolved = dark ? 'dark' : 'light';
+            document.documentElement.dataset.theme = resolved;
+            document.documentElement.dataset.themeMode = mode;
+            document.documentElement.style.colorScheme = resolved;
+        })();
+    </script>
+    <script src="js/runtime.js?v=8.8.0"></script>
+    <script src="js/auth.js?v=8.8.0"></script>
+    <script>if (!FlightWatcherAuth.requireAuth()) document.documentElement.classList.add('auth-redirecting');</script>
+    <title>FlightWatcher Admin Dashboard</title>
+<link href="vendor/bootstrap.min.css?v=8.8.0" rel="stylesheet"/>
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest', observeMutations: true, showMissingIcons: false };</script>
+<script defer src="vendor/fontawesome/all.min.js?v=8.8.0"></script>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="stylesheet" href="css/style.css?v=8.8.0">
+    <link rel="stylesheet" href="css/responsive.css?v=8.9.0">
+</head>
+<body class="admin-page">
+    <div class="admin-shell">
+        <aside class="admin-sidebar" id="admin-sidebar" aria-label="Điều hướng quản trị">
+            <div class="admin-sidebar-head">
+                <a class="admin-brand" href="admin.html" aria-label="FlightWatcher Admin">
+                    <span class="admin-brand-mark"><i class="fa-solid fa-plane-up"></i></span>
+                    <span class="admin-brand-copy"><strong>FlightWatcher</strong><small>Admin Console</small></span>
+                </a>
+                <button class="admin-sidebar-collapse d-none d-xl-inline-flex" id="sidebar-collapse-btn" type="button" aria-label="Thu gọn thanh bên" title="Thu gọn thanh bên">
+                    <i class="fa-solid fa-angles-left"></i>
+                </button>
+            </div>
+
+            <nav class="admin-nav" aria-label="Danh mục quản trị">
+                <span class="admin-nav-label" data-admin-i18n="nav_workspace">Không gian làm việc</span>
+                <a class="admin-nav-link active" href="#overview" data-section-link="overview" aria-current="page"><i class="fa-solid fa-chart-pie"></i><span data-admin-i18n="nav_overview">Tổng quan</span></a>
+                <a class="admin-nav-link" href="#flight-editor" data-section-link="flight-editor"><i class="fa-solid fa-pen-to-square"></i><span data-admin-i18n="nav_editor">Biên tập chuyến bay</span></a>
+                <a class="admin-nav-link" href="#flight-data" data-section-link="flight-data"><i class="fa-solid fa-database"></i><span data-admin-i18n="nav_data">Dữ liệu MockAPI</span></a>
+                <span class="admin-nav-label mt-4" data-admin-i18n="nav_system">Hệ thống</span>
+                <a class="admin-nav-link" href="index.html" data-public-logout><i class="fa-solid fa-arrow-up-right-from-square"></i><span data-admin-i18n="nav_public">Mở trang khách</span></a>
+                <button class="admin-nav-link border-0 w-100 text-start" type="button" data-bs-toggle="modal" data-bs-target="#adminHelpModal"><i class="fa-regular fa-circle-question"></i><span data-admin-i18n="nav_help">Hướng dẫn nhanh</span></button>
+                <button class="admin-nav-link admin-nav-danger border-0 w-100 text-start" id="sidebar-logout" type="button"><i class="fa-solid fa-arrow-right-from-bracket"></i><span data-admin-i18n="nav_logout">Đăng xuất</span></button>
+            </nav>
+
+            <div class="admin-sidebar-status">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="api-pulse" id="sidebar-api-dot"></span>
+                    <strong id="sidebar-api-status" data-admin-i18n="api_checking">Đang kiểm tra API</strong>
+                </div>
+                <small id="sidebar-api-endpoint">MockAPI • Flights</small>
+            </div>
+
+            <div class="admin-sidebar-footer">
+                <span class="avatar-circle">AD</span>
+                <div class="admin-sidebar-user"><strong id="sidebar-user-name">admin</strong><small id="sidebar-session-expiry">Phiên đăng nhập đang hoạt động</small></div>
+                <span class="admin-session-dot" title="Phiên đăng nhập hợp lệ"></span>
+            </div>
+        </aside>
+
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="admin-icon-btn d-xl-none" id="admin-menu-toggle" type="button" aria-label="Mở menu quản trị" aria-controls="admin-sidebar" aria-expanded="false">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <button class="admin-icon-btn d-none d-xl-inline-flex" id="admin-sidebar-toggle" type="button" aria-label="Thu gọn thanh bên" title="Thu gọn thanh bên">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                    <div class="admin-title-stack">
+                        <span class="admin-kicker" data-admin-i18n="dashboard_kicker">TRUNG TÂM ĐIỀU HÀNH</span>
+                        <h1 class="admin-page-title" data-admin-i18n="dashboard_title">Quản trị chuyến bay</h1>
+                        <div class="admin-current-section" aria-live="polite"><i class="fa-solid fa-location-dot"></i><span id="admin-current-section" data-admin-i18n="nav_overview">Tổng quan</span></div>
+                    </div>
+                </div>
+
+                <div class="admin-topbar-actions">
+                    <div class="admin-api-chip" title="Trạng thái kết nối MockAPI" data-state="checking" role="status" aria-live="polite" aria-atomic="true">
+                        <span class="api-pulse" id="api-status-dot"></span>
+                        <span class="admin-api-copy"><strong id="api-status-text" data-admin-i18n="api_checking">Đang kiểm tra</strong><small id="api-latency-quality" class="api-quality-label checking">Đang kiểm tra</small></span>
+                        <span class="api-live-badge"><i class="fa-solid fa-wave-square"></i><span data-admin-i18n="api_live">LIVE</span></span>
+                        <span class="api-latency-value" id="api-latency">-- ms</span>
+                        <span class="api-latency-chart" id="api-latency-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+                        <small class="api-probe-age" id="api-probe-age">--</small>
+                    </div>
+
+                    <select class="admin-compact-select" id="admin-lang-selector" aria-label="Ngôn ngữ">
+                        <option value="vi">🇻🇳 VI</option>
+                        <option value="en">🇬🇧 EN</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="de">🇩🇪 DE</option>
+                        <option value="ru">🇷🇺 RU</option>
+                        <option value="th">🇹🇭 ไทย</option>
+                    </select>
+
+                    <div class="dropdown">
+                        <button class="admin-theme-btn dropdown-toggle" id="admin-theme-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-circle-half-stroke" id="admin-theme-icon"></i>
+                            <span id="admin-theme-label" data-admin-i18n="theme_auto">Tự động</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end theme-menu shadow border-0" aria-labelledby="admin-theme-toggle">
+                            <li><button class="dropdown-item theme-option" type="button" data-theme-option="auto"><i class="fa-solid fa-circle-half-stroke"></i><span data-admin-i18n="theme_auto">Tự động</span><small data-admin-i18n="theme_auto_hint">Theo thiết bị</small></button></li>
+                            <li><button class="dropdown-item theme-option" type="button" data-theme-option="light"><i class="fa-regular fa-sun"></i><span data-admin-i18n="theme_light">Sáng</span><small data-admin-i18n="theme_light_hint">Độ tương phản cao</small></button></li>
+                            <li><button class="dropdown-item theme-option" type="button" data-theme-option="dark"><i class="fa-regular fa-moon"></i><span data-admin-i18n="theme_dark">Tối</span><small data-admin-i18n="theme_dark_hint">Dịu mắt ban đêm</small></button></li>
+                        </ul>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="admin-user-menu dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="admin-user-avatar">AD</span>
+                            <span class="admin-user-copy d-none d-lg-block"><strong id="admin-auth-user">admin</strong><small data-admin-i18n="account_role">Quản trị viên</small></span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end admin-account-menu shadow-lg border-0">
+                            <div class="admin-account-header">
+                                <span class="admin-user-avatar large">AD</span>
+                                <div><strong id="admin-account-name">admin</strong><small data-admin-i18n="signed_in_as">Đã đăng nhập an toàn</small></div>
+                            </div>
+                            <div class="admin-account-session"><i class="fa-regular fa-clock"></i><span id="admin-session-remaining">--</span></div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="index.html" data-public-logout><i class="fa-solid fa-arrow-up-right-from-square"></i><span data-admin-i18n="open_public">Trang khách</span></a>
+                            <button class="dropdown-item" id="admin-lock" type="button"><i class="fa-solid fa-lock"></i><span data-admin-i18n="lock_admin">Khóa trang quản trị</span></button>
+                            <button class="dropdown-item text-danger" id="admin-logout" type="button"><i class="fa-solid fa-arrow-right-from-bracket"></i><span data-admin-i18n="logout">Đăng xuất</span></button>
+                        </div>
+                    </div>
+
+                    <a href="index.html" data-public-logout class="btn btn-primary rounded-pill fw-bold px-3 d-none d-xxl-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i><span data-admin-i18n="open_public">Trang khách</span>
+                    </a>
+                </div>
+            </header>
+
+            <main class="admin-content">
+                <section id="overview" class="admin-hero-panel admin-scroll-section" tabindex="-1" data-admin-section="overview">
+                    <div>
+                        <span class="section-eyebrow"><i class="fa-solid fa-bolt"></i><span data-admin-i18n="smart_dashboard">Bảng điều khiển thông minh</span></span>
+                        <h2 data-admin-i18n="welcome_title">Theo dõi dữ liệu và vận hành FlightWatcher trong một nơi</h2>
+                        <p data-admin-i18n="welcome_text">CRUD trực tiếp với MockAPI, kiểm tra chất lượng dữ liệu và cập nhật trang khách ngay lập tức.</p>
+                    </div>
+                    <div class="admin-hero-actions">
+                        <button class="btn btn-light rounded-pill fw-bold px-4" id="btn-refresh-admin" type="button"><i class="fa-solid fa-rotate me-2"></i><span data-admin-i18n="refresh">Làm mới</span></button>
+                        <a class="btn btn-primary rounded-pill fw-bold px-4" href="#flight-editor"><i class="fa-solid fa-plus me-2"></i><span data-admin-i18n="add_flight">Thêm chuyến bay</span></a>
+                    </div>
+                </section>
+
+                <section class="row g-3 mt-1" aria-label="Thống kê chuyến bay">
+                    <div class="col-sm-6 col-xl-3">
+                        <article class="admin-stat-card stat-primary">
+                            <span class="admin-stat-icon"><i class="fa-solid fa-plane-departure"></i></span>
+                            <div><small data-admin-i18n="stat_total">Tổng chuyến bay</small><strong id="stat-total">0</strong><span id="stat-total-note" data-admin-i18n="stat_total_note">Dữ liệu hợp lệ</span></div>
+                        </article>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <article class="admin-stat-card stat-success">
+                            <span class="admin-stat-icon"><i class="fa-solid fa-coins"></i></span>
+                            <div><small data-admin-i18n="stat_avg">Giá trung bình</small><strong id="stat-avg">0 đ</strong><span data-admin-i18n="stat_avg_note">Toàn bộ chuyến</span></div>
+                        </article>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <article class="admin-stat-card stat-warning">
+                            <span class="admin-stat-icon"><i class="fa-solid fa-bell"></i></span>
+                            <div><small data-admin-i18n="stat_watch">Đang theo dõi</small><strong id="stat-priority">0</strong><span id="stat-priority-note">0%</span></div>
+                        </article>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <article class="admin-stat-card stat-info">
+                            <span class="admin-stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></span>
+                            <div><small data-admin-i18n="stat_min">Giá thấp nhất</small><strong id="stat-min">0 đ</strong><span id="stat-min-note" data-admin-i18n="stat_min_note">Chưa có dữ liệu</span></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="admin-data-health" id="admin-data-health" data-quality="good" aria-label="Tình trạng dữ liệu MockAPI">
+                    <div class="admin-data-health-head">
+                        <span class="admin-data-health-icon"><i class="fa-solid fa-shield-halved"></i></span>
+                        <div><span class="section-eyebrow" data-admin-i18n="live_data">DỮ LIỆU TRỰC TIẾP</span><h3 data-admin-i18n="data_quality">Chất lượng dữ liệu</h3></div>
+                    </div>
+                    <div class="admin-data-health-grid">
+                        <article class="admin-data-health-card"><span><i class="fa-solid fa-circle-check"></i></span><div><small data-admin-i18n="data_valid">Bản ghi hợp lệ</small><strong id="data-health-valid">0</strong></div></article>
+                        <article class="admin-data-health-card"><span><i class="fa-solid fa-broom"></i></span><div><small data-admin-i18n="data_invalid">Bản ghi cần làm sạch</small><strong id="data-health-invalid">0</strong></div></article>
+                        <article class="admin-data-health-card"><span><i class="fa-solid fa-building"></i></span><div><small data-admin-i18n="data_airlines">Hãng đang khai thác</small><strong id="data-health-airlines">0</strong></div></article>
+                        <article class="admin-data-health-card"><span><i class="fa-solid fa-stopwatch"></i></span><div><small data-admin-i18n="data_live_latency">Độ trễ trực tiếp</small><strong id="data-health-latency">-- ms</strong></div></article>
+                        <article class="admin-data-health-card"><span><i class="fa-solid fa-clock-rotate-left"></i></span><div><small data-admin-i18n="data_last_sync">Đồng bộ gần nhất</small><strong id="data-health-sync">--:--:--</strong></div></article>
+                    </div>
+                </section>
+
+                <section class="row g-4 mt-1 mb-4">
+                    <div class="col-xl-8">
+                        <article class="admin-panel h-100">
+                            <div class="admin-panel-heading">
+                                <div><span class="section-eyebrow" data-admin-i18n="analysis">PHÂN TÍCH</span><h3 data-admin-i18n="price_by_airline">Mức giá trung bình theo hãng</h3></div>
+                                <span class="admin-panel-badge" id="last-updated-admin">--:--:--</span>
+                            </div>
+                            <div id="price-chart" class="admin-bar-chart" aria-label="Biểu đồ giá trung bình theo hãng">
+                                <div class="chart-empty" data-admin-i18n="loading_data">Đang tải dữ liệu...</div>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="col-xl-4">
+                        <article class="admin-panel h-100">
+                            <div class="admin-panel-heading"><div><span class="section-eyebrow" data-admin-i18n="insights">THÔNG TIN NHANH</span><h3 data-admin-i18n="system_insights">Chất lượng hệ thống</h3></div></div>
+                            <div class="admin-insight-list">
+                                <div class="admin-insight-item"><span><i class="fa-solid fa-tag"></i></span><div><small data-admin-i18n="cheapest_route">Tuyến rẻ nhất</small><strong id="insight-cheapest">--</strong></div></div>
+                                <div class="admin-insight-item"><span><i class="fa-solid fa-chart-simple"></i></span><div><small data-admin-i18n="watch_rate">Tỷ lệ theo dõi</small><strong id="insight-priority-rate">0%</strong></div></div>
+                                <div class="admin-insight-item"><span><i class="fa-solid fa-chair"></i></span><div><small data-admin-i18n="available_seats">Tổng ghế còn</small><strong id="insight-seats">0</strong></div></div>
+                                <div class="admin-insight-item"><span><i class="fa-solid fa-shield-halved"></i></span><div><small data-admin-i18n="data_quality">Chất lượng dữ liệu</small><strong id="insight-quality">--</strong></div></div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="row g-4 align-items-start admin-workspace-layout" aria-label="Không gian quản trị chuyến bay">
+                    <div class="col-12 admin-scroll-section" id="flight-editor" tabindex="-1" data-admin-section="flight-editor">
+                        <article class="admin-panel admin-editor-panel sticky-xl-top">
+                            <div class="admin-panel-heading mb-3">
+                                <div><span class="section-eyebrow" data-admin-i18n="editor">BIÊN TẬP</span><h3 id="form-title" data-admin-i18n="form_add_title">Thêm chuyến bay mới</h3></div>
+                                <button class="admin-icon-btn" id="btn-reset-form" type="button" title="Đặt lại form"><i class="fa-solid fa-rotate-left"></i></button>
+                            </div>
+
+                            <div class="admin-preview-card" id="admin-preview-card">
+                                <div class="admin-preview-image" id="preview-image"><span class="preview-airline-logo" id="preview-airline-logo"></span><span class="preview-badge" id="preview-code">VN-000</span></div>
+                                <div class="admin-preview-copy"><strong id="preview-route">Hà Nội → Đà Nẵng</strong><span id="preview-meta">08:30 • 10:00</span><b id="preview-price">0 đ</b></div>
+                            </div>
+
+                            <form id="flight-form" novalidate>
+                                <input type="hidden" id="flight-id">
+                                <fieldset class="admin-form-section">
+                                    <legend><i class="fa-solid fa-plane"></i><span data-admin-i18n="form_basic">Thông tin cơ bản</span></legend>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="airline" data-admin-i18n="airline">Hãng hàng không</label>
+                                            <select class="form-select" id="airline" required></select>
+                                            <div class="invalid-feedback" data-admin-i18n="airline_required">Vui lòng chọn hãng bay.</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="flight-code" data-admin-i18n="flight_code">Mã chuyến bay</label>
+                                            <input type="text" class="form-control fw-bold text-uppercase" id="flight-code" placeholder="VN-213" autocomplete="off" required>
+                                            <div class="invalid-feedback" id="err-code">Mã phải dạng VN-213.</div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="flight-route" data-admin-i18n="route">Tuyến bay</label>
+                                            <input type="text" class="form-control fw-bold" id="flight-route" placeholder="Hà Nội - Đà Nẵng" required>
+                                            <div class="invalid-feedback" data-admin-i18n="route_invalid">Nhập theo dạng Điểm đi - Điểm đến.</div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset class="admin-form-section">
+                                    <legend><i class="fa-solid fa-calendar-days"></i><span data-admin-i18n="form_schedule">Lịch trình & giá</span></legend>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="current-price" data-admin-i18n="current_price">Giá hiện hành</label>
+                                            <div class="input-group"><input type="number" class="form-control" id="current-price" min="1" placeholder="1290000" required><span class="input-group-text">VND</span></div>
+                                            <div class="invalid-feedback" id="err-curr-price">Giá phải lớn hơn 0.</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="target-price" data-admin-i18n="target_price">Giá mục tiêu</label>
+                                            <div class="input-group"><input type="number" class="form-control" id="target-price" min="1" placeholder="900000" required><span class="input-group-text">VND</span></div>
+                                            <div class="invalid-feedback" id="err-target-price">Giá mục tiêu phải hợp lệ.</div>
+                                        </div>
+                                        <div class="col-md-6"><label class="form-label" for="flight-date" data-admin-i18n="flight_date">Ngày bay</label><input type="date" class="form-control" id="flight-date" required><div class="invalid-feedback" data-admin-i18n="date_required">Vui lòng chọn ngày bay.</div></div>
+                                        <div class="col-md-3"><label class="form-label" for="departure-time" data-admin-i18n="departure_time">Cất cánh</label><input type="time" class="form-control" id="departure-time" required><div class="invalid-feedback" data-admin-i18n="time_required">Nhập giờ.</div></div>
+                                        <div class="col-md-3"><label class="form-label" for="arrival-time" data-admin-i18n="arrival_time">Hạ cánh</label><input type="time" class="form-control" id="arrival-time" required><div class="invalid-feedback" data-admin-i18n="time_required">Nhập giờ.</div></div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset class="admin-form-section">
+                                    <legend><i class="fa-solid fa-ticket"></i><span data-admin-i18n="form_service">Dịch vụ & hiển thị</span></legend>
+                                    <div class="row g-3">
+                                        <div class="col-12"><label class="form-label" for="image-url" data-admin-i18n="image_url">URL ảnh chuyến bay</label><input type="text" class="form-control" id="image-url" placeholder="https://images.unsplash.com/... (có thể để trống)"><div class="invalid-feedback" id="err-image">Dùng URL ảnh http/https hoặc để trống để hệ thống tự chọn ảnh thực phù hợp.</div></div>
+                                        <div class="col-md-6"><label class="form-label" for="cabin-class" data-admin-i18n="cabin">Hạng ghế</label><select class="form-select" id="cabin-class"><option value="Phổ thông">Phổ thông</option><option value="Phổ thông đặc biệt">Phổ thông đặc biệt</option><option value="Thương gia">Thương gia</option></select></div>
+                                        <div class="col-md-6"><label class="form-label" for="baggage" data-admin-i18n="baggage">Hành lý</label><input type="text" class="form-control" id="baggage" placeholder="7kg xách tay" required><div class="invalid-feedback" data-admin-i18n="baggage_required">Vui lòng nhập hành lý.</div></div>
+                                        <div class="col-md-6"><label class="form-label" for="seats" data-admin-i18n="seats">Số ghế trống</label><input type="number" class="form-control" id="seats" min="0" placeholder="12" required><div class="invalid-feedback" data-admin-i18n="seats_invalid">Số ghế phải từ 0 trở lên.</div></div>
+                                        <div class="col-md-6"><label class="form-label" for="rating" data-admin-i18n="rating">Đánh giá</label><input type="number" class="form-control" id="rating" min="1" max="5" step="0.1" placeholder="4.6" required><div class="invalid-feedback" data-admin-i18n="rating_invalid">Đánh giá từ 1 đến 5.</div></div>
+                                        <div class="col-12"><label class="form-label" for="booking-url" data-admin-i18n="booking_url">Link đặt vé</label><input type="url" class="form-control" id="booking-url" placeholder="https://www.vietnamairlines.com/" required><div class="invalid-feedback" id="err-booking">Link đặt vé phải hợp lệ.</div></div>
+                                        <div class="col-12"><label class="form-label" for="note" data-admin-i18n="note">Ghi chú</label><textarea class="form-control" id="note" rows="2" placeholder="Giá tốt cho chuyến bay cuối tuần."></textarea></div>
+                                        <div class="col-12"><div class="form-check form-switch admin-switch"><input class="form-check-input" type="checkbox" id="is-priority"><label class="form-check-label" for="is-priority"><strong data-admin-i18n="tracking">Kích hoạt theo dõi giá</strong><small data-admin-i18n="tracking_hint">Đánh dấu chuyến bay ưu tiên trên trang khách</small></label></div></div>
+                                    </div>
+                                </fieldset>
+
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="submit" class="btn btn-primary fw-bold rounded-3 py-2" id="btn-save"><i class="fa-solid fa-floppy-disk me-2"></i><span data-admin-i18n="save">Lưu dữ liệu</span></button>
+                                    <button type="button" class="btn btn-outline-secondary rounded-3" id="btn-cancel" style="display:none"><span data-admin-i18n="cancel_edit">Hủy chỉnh sửa</span></button>
+                                </div>
+                            </form>
+                        </article>
+                    </div>
+
+                    <div class="col-12 admin-scroll-section" id="flight-data" tabindex="-1" data-admin-section="flight-data">
+                        <article class="admin-panel admin-data-panel">
+                            <div class="admin-panel-heading admin-data-heading">
+                                <div><span class="section-eyebrow" data-admin-i18n="live_data">DỮ LIỆU TRỰC TIẾP</span><h3 data-admin-i18n="mockapi_data">Danh sách chuyến bay MockAPI</h3><p class="mb-0">6a4c7a5bf5eab0bb6b6424fb.mockapi.io/Flights</p></div>
+                                <div class="admin-data-actions">
+                                    <button type="button" class="btn btn-outline-primary rounded-pill fw-bold" id="btn-export-json"><i class="fa-solid fa-file-arrow-down me-1"></i><span data-admin-i18n="export_json">Xuất JSON</span></button>
+                                    <button type="button" class="btn btn-success rounded-pill fw-bold" id="btn-sync-sample"><i class="fa-solid fa-wand-magic-sparkles me-1"></i><span data-admin-i18n="sync_sample">Đồng bộ mẫu</span></button>
+                                    <button type="button" class="btn btn-outline-danger rounded-pill fw-bold" id="btn-delete-all"><i class="fa-solid fa-trash-can me-1"></i><span data-admin-i18n="delete_all">Xóa toàn bộ</span></button>
+                                </div>
+                            </div>
+
+                            <div class="admin-filter-bar">
+                                <div class="admin-search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="search" id="admin-search" class="form-control" placeholder="Tìm mã, tuyến hoặc hãng bay..." data-admin-i18n-placeholder="search_placeholder"></div>
+                                <select class="form-select" id="admin-airline-filter" aria-label="Lọc hãng"><option value="all" data-admin-i18n="all_airlines">Tất cả hãng</option></select>
+                                <select class="form-select" id="admin-priority-filter" aria-label="Lọc theo dõi"><option value="all" data-admin-i18n="all_status">Tất cả trạng thái</option><option value="watch" data-admin-i18n="watching">Đang theo dõi</option><option value="normal" data-admin-i18n="not_watching">Chưa theo dõi</option></select>
+                                <select class="form-select" id="admin-sort" aria-label="Sắp xếp"><option value="newest" data-admin-i18n="sort_newest">Mới nhất</option><option value="price-asc" data-admin-i18n="sort_price_asc">Giá tăng dần</option><option value="price-desc" data-admin-i18n="sort_price_desc">Giá giảm dần</option><option value="date" data-admin-i18n="sort_date">Ngày bay gần nhất</option></select>
+                            </div>
+
+                            <div class="admin-sync-note" id="sync-note"><i class="fa-solid fa-circle-info"></i><span data-admin-i18n="checking_data">Đang kiểm tra chất lượng dữ liệu...</span></div>
+
+                            <div class="table-responsive admin-table-wrap">
+                                <table class="table admin-flight-table align-middle mb-0">
+                                    <thead><tr><th data-admin-i18n="th_flight">Chuyến bay</th><th data-admin-i18n="th_route">Tuyến & lịch</th><th data-admin-i18n="th_current">Giá hiện tại</th><th data-admin-i18n="th_target">Mục tiêu</th><th data-admin-i18n="th_availability">Tình trạng</th><th data-admin-i18n="th_tracking">Theo dõi</th><th class="text-end" data-admin-i18n="th_actions">Thao tác</th></tr></thead>
+                                    <tbody id="table-body"></tbody>
+                                </table>
+                            </div>
+                            <div class="admin-table-footer"><span id="table-result-count">0 chuyến bay</span><span id="table-updated-at">--</span></div>
+                        </article>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div class="admin-sidebar-backdrop" id="admin-sidebar-backdrop"></div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-body text-center p-4">
+                    <span class="delete-modal-icon"><i class="fa-solid fa-trash-can"></i></span>
+                    <h5 class="fw-bold mt-3" id="deleteModalLabel" data-admin-i18n="delete_title">Xóa chuyến bay?</h5>
+                    <p class="text-muted small" data-admin-i18n="delete_text">Dữ liệu sẽ bị xóa trực tiếp khỏi MockAPI và không thể hoàn tác.</p>
+                    <input type="hidden" id="delete-id">
+                    <div class="d-flex justify-content-center gap-2 mt-4"><button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal" data-admin-i18n="cancel">Hủy</button><button type="button" class="btn btn-danger px-4 rounded-3 fw-bold" id="btn-confirm-delete" data-admin-i18n="delete">Xóa</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade admin-operation-modal" id="bulkActionModal" tabindex="-1" aria-labelledby="bulkActionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content admin-confirm-dialog border-0 shadow-lg">
+                <div class="modal-body text-center p-4 p-md-5">
+                    <span class="admin-confirm-icon" id="bulk-action-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                    <span class="admin-confirm-kicker" id="bulk-action-kicker">XÁC NHẬN THAO TÁC</span>
+                    <h5 class="fw-bold mt-2 mb-2" id="bulkActionModalLabel">Xác nhận thao tác</h5>
+                    <p class="text-muted mb-3" id="bulk-action-text"></p>
+                    <div class="admin-confirm-summary" id="bulk-action-summary"></div>
+                    <label class="admin-confirm-check mt-3" id="bulk-action-check-wrap">
+                        <input class="form-check-input" type="checkbox" id="bulk-action-check">
+                        <span id="bulk-action-check-label"></span>
+                    </label>
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 mt-4">
+                        <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal" data-admin-i18n="cancel">Hủy</button>
+                        <button type="button" class="btn btn-danger rounded-3 px-4 fw-bold" id="btn-confirm-bulk-action" disabled>
+                            <i class="fa-solid fa-check me-1"></i><span id="bulk-action-confirm-label">Tiếp tục</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="adminHelpModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0"><div><span class="section-eyebrow" data-admin-i18n="quick_guide">HƯỚNG DẪN NHANH</span><h5 class="modal-title fw-bold" data-admin-i18n="help_title">Vận hành trang quản trị</h5></div><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body pt-0">
+                    <div class="row g-3">
+                        <div class="col-md-6"><div class="help-step"><span>01</span><div><strong data-admin-i18n="help_1_title">Kiểm tra kết nối</strong><p data-admin-i18n="help_1_text">Quan sát trạng thái MockAPI trên thanh trên cùng trước khi thao tác.</p></div></div></div>
+                        <div class="col-md-6"><div class="help-step"><span>02</span><div><strong data-admin-i18n="help_2_title">Nhập dữ liệu hợp lệ</strong><p data-admin-i18n="help_2_text">Hoàn thành các trường bắt buộc và xử lý lỗi inline trước khi lưu.</p></div></div></div>
+                        <div class="col-md-6"><div class="help-step"><span>03</span><div><strong data-admin-i18n="help_3_title">Đồng bộ dữ liệu mẫu</strong><p data-admin-i18n="help_3_text">Dùng nút Đồng bộ mẫu khi MockAPI có bản ghi tự sinh không hợp lệ.</p></div></div></div>
+                        <div class="col-md-6"><div class="help-step"><span>04</span><div><strong data-admin-i18n="help_4_title">Kiểm tra trang khách</strong><p data-admin-i18n="help_4_text">Mở trang khách và tải lại để xác nhận dữ liệu đã cập nhật.</p></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container admin-toast-center" aria-live="polite" aria-atomic="true">
+        <div id="liveToast" class="toast admin-center-toast border-0 shadow-lg" role="alert">
+            <div class="admin-toast-layout">
+                <span class="admin-toast-icon" id="toast-icon"><i class="fa-solid fa-circle-check"></i></span>
+                <div class="admin-toast-copy">
+                    <strong id="toast-title">Thành công</strong>
+                    <div id="toast-message">Thao tác đã hoàn tất.</div>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Đóng"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/jquery.min.js?v=8.8.0"></script>
+    <script src="vendor/bootstrap.bundle.min.js?v=8.8.0"></script>
+    <script src="js/api.js?v=8.8.0"></script>
+    <script src="js/admin.js?v=8.8.0"></script>
+    <script src="js/admin-i18n-extra.js?v=8.8.0"></script>
+</body>
+</html>

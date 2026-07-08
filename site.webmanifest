@@ -1,0 +1,16 @@
+{
+  "name": "FlightWatcher FIT4015",
+  "short_name": "FlightWatcher",
+  "description": "Ứng dụng theo dõi và quản lý giá vé máy bay sử dụng MockAPI.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f8fc",
+  "theme_color": "#087fc2",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

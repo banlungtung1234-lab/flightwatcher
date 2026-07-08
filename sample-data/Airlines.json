@@ -1,0 +1,38 @@
+[
+  {
+    "HangBay": "Vietnam Airlines",
+    "MaHang": "VN",
+    "QuocGia": "Việt Nam",
+    "MauNhan": "#d99a00",
+    "MauPhu": "#006f78",
+    "Logo": "img/airlines/vietnam-airlines.svg",
+    "Website": "https://www.vietnamairlines.com/"
+  },
+  {
+    "HangBay": "VietJet Air",
+    "MaHang": "VJ",
+    "QuocGia": "Việt Nam",
+    "MauNhan": "#e31b2d",
+    "MauPhu": "#ffbf00",
+    "Logo": "img/airlines/vietjet-air.svg",
+    "Website": "https://www.vietjetair.com/"
+  },
+  {
+    "HangBay": "Bamboo Airways",
+    "MaHang": "QH",
+    "QuocGia": "Việt Nam",
+    "MauNhan": "#2f9e44",
+    "MauPhu": "#0a7fc1",
+    "Logo": "img/airlines/bamboo-airways.svg",
+    "Website": "https://www.bambooairways.com/"
+  },
+  {
+    "HangBay": "Vietravel Airlines",
+    "MaHang": "VU",
+    "QuocGia": "Việt Nam",
+    "MauNhan": "#f6a800",
+    "MauPhu": "#123a6d",
+    "Logo": "img/airlines/vietravel-airlines.svg",
+    "Website": "https://www.vietravelairlines.com/"
+  }
+]

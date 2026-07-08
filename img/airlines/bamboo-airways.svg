@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Bamboo Airways</title>
+  <desc id="desc">Biểu trưng lá tre cách điệu xanh lá và xanh dương</desc>
+  <defs>
+    <linearGradient id="qhBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#18a7e0"/>
+      <stop offset="1" stop-color="#0762b4"/>
+    </linearGradient>
+    <linearGradient id="qhGreen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8bcf3f"/>
+      <stop offset="1" stop-color="#2f9e44"/>
+    </linearGradient>
+</defs>
+  <circle cx="64" cy="64" r="55" fill="#eefaf6"/>
+  <g>
+    <path d="M60 103c-3-25 2-50 17-75 2 22-2 44-17 75Z" fill="url(#qhGreen)"/>
+    <path d="M54 101c-16-15-24-34-23-57 16 12 27 31 23 57Z" fill="url(#qhBlue)"/>
+    <path d="M66 96c14-17 24-35 30-56 6 22-4 43-30 56Z" fill="url(#qhBlue)"/>
+    <path d="M48 70c8-10 18-19 30-26" fill="none" stroke="#0b6f78" stroke-width="5" stroke-linecap="round"/>
+    <path d="M56 82c11-8 22-14 34-18" fill="none" stroke="#47a447" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

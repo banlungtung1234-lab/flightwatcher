@@ -1,0 +1,473 @@
+/* =========================================================
+   FlightWatcher 8.9 — Adaptive layout layer
+   Loaded after the existing styles so the current design and
+   JavaScript remain unchanged. Only layout behaviour changes.
+   ========================================================= */
+
+/* ---------- Shared layout safety ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { width: 100%; max-width: 100%; overflow-x: hidden; }
+body { width: 100%; min-width: 0 !important; max-width: 100%; overflow-x: clip; }
+img, video, canvas { max-width: 100%; height: auto; }
+svg { max-width: 100%; }
+.container, .container-fluid, .row, [class*="col-"] { min-width: 0; }
+input, select, textarea, button, .btn, .input-group, .form-control, .form-select { min-width: 0; }
+.table-responsive, .admin-table-wrap { max-width: 100%; }
+.modal-dialog, .offcanvas { max-width: 100vw; }
+
+/* Prevent translated text and long data values from forcing a page wider. */
+.navbar-brand,
+.admin-brand-copy,
+.admin-title-stack,
+.admin-panel-heading,
+.admin-data-heading,
+.flight-card-meta,
+.filter-result-meta,
+.footer-links,
+.legal-header-copy,
+.login-form-wrap,
+.detail-section,
+.detail-note-card,
+.detail-smart-card { min-width: 0; }
+
+.admin-panel-heading p,
+.admin-confirm-summary,
+.admin-confirm-check,
+.detail-note-card p,
+.detail-smart-card p,
+.footer-links a,
+.footer-link-button { overflow-wrap: anywhere; }
+
+/* The legacy desktop refinement resets transform later in style.css.
+   Restore the intended drawer behaviour below the desktop breakpoint. */
+@media (max-width: 1199.98px) {
+    .admin-sidebar {
+        transform: translate3d(-105%, 0, 0) !important;
+        transition: transform .24s ease, width .24s ease, padding .24s ease;
+    }
+    .admin-sidebar-open .admin-sidebar { transform: translate3d(0, 0, 0) !important; }
+    .admin-main { margin-left: 0 !important; }
+}
+
+/* ---------- Public page: medium screens ---------- */
+@media (max-width: 991.98px) {
+    body:not(.admin-page):not(.admin-login-page) .navbar {
+        margin-top: 0 !important;
+        padding-top: max(8px, env(safe-area-inset-top));
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar > .container {
+        flex-wrap: nowrap;
+        gap: 10px;
+        padding-inline: 16px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar-brand {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar > .container > .d-flex {
+        flex: 0 0 auto;
+        min-width: 0;
+        gap: 8px !important;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section {
+        padding: 104px 0 124px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section h1 {
+        max-width: 760px;
+        margin-inline: auto;
+        font-size: clamp(1.8rem, 5.2vw, 2.75rem);
+        line-height: 1.15;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section p {
+        max-width: 680px;
+        margin-inline: auto;
+        font-size: clamp(.9rem, 2vw, 1.08rem);
+    }
+    .guest-pro-search-shell { width: 100%; max-width: 100% !important; }
+    .search-primary-row > [class*="col-"] { min-width: 0; }
+    .search-box-container .input-group { flex-wrap: nowrap; }
+    .search-box-container .form-control,
+    .search-box-container .form-select { width: 1%; min-width: 0; }
+    .guest-quick-filters {
+        max-width: 100%;
+        overscroll-behavior-inline: contain;
+        scroll-snap-type: x proximity;
+    }
+    .quick-filter-chip { scroll-snap-align: start; }
+    .guest-section-toolbar > div:first-child { min-width: 0; }
+    .guest-section-toolbar h4 { overflow-wrap: anywhere; }
+
+    /* A portrait tablet is better served by card rows than a 980px table. */
+    .admin-flight-table { min-width: 0 !important; }
+    .admin-flight-table thead { display: none; }
+    .admin-flight-table,
+    .admin-flight-table tbody,
+    .admin-flight-table tr,
+    .admin-flight-table td { display: block; width: 100%; }
+    .admin-flight-table tbody { display: grid; gap: 12px; }
+    .admin-flight-table tbody tr {
+        overflow: hidden;
+        padding: 8px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 17px;
+        background: var(--bg-card);
+        box-shadow: 0 12px 30px -28px rgba(15, 23, 42, .5);
+    }
+    .admin-flight-table tbody td {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--border-color);
+        text-align: left !important;
+    }
+    .admin-flight-table tbody td:last-child { border-bottom: 0; }
+    .admin-flight-table tbody td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: .6rem;
+        font-weight: 900;
+        letter-spacing: .035em;
+        text-transform: uppercase;
+    }
+    .admin-table-wrap { max-height: none !important; overflow: visible !important; }
+    .admin-row-actions { justify-content: flex-start; }
+}
+
+/* ---------- Public page: phones and small tablets ---------- */
+@media (max-width: 767.98px) {
+    body:not(.admin-page):not(.admin-login-page) .navbar > .container {
+        gap: 7px;
+        padding-inline: 12px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar > .container > .d-flex { gap: 6px !important; }
+    body:not(.admin-page):not(.admin-login-page) .navbar a.btn {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 40px;
+        padding: 0 !important;
+        font-size: 0;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar a.btn i {
+        margin: 0 !important;
+        font-size: .92rem;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section {
+        padding: 92px 0 108px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section .container { padding-inline: 18px; }
+    body:not(.admin-page):not(.admin-login-page) .hero-section h1 {
+        margin-bottom: 12px !important;
+        font-size: clamp(1.7rem, 7.2vw, 2.25rem);
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section p {
+        margin-bottom: 0 !important;
+        font-size: .94rem;
+        line-height: 1.55;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section + .container {
+        margin-top: -48px !important;
+        padding-inline: 12px;
+    }
+    .guest-pro-search-shell {
+        padding: 13px;
+        border-radius: 18px;
+    }
+    .search-box-container .form-control,
+    .search-box-container .form-select {
+        min-height: 48px;
+        padding-block: 11px;
+        text-overflow: ellipsis;
+    }
+    .search-box-container .input-group-text {
+        flex: 0 0 auto;
+        padding-left: 12px !important;
+        padding-right: 7px !important;
+    }
+    .guest-filter-toolbar { gap: 10px; margin-top: 12px; padding-top: 12px; }
+    .guest-toolbar-actions { min-width: 0; }
+    .guest-filter-toggle { min-width: 0; }
+    .guest-section-actions { width: 100%; }
+    .guest-section-actions > * { flex: 0 1 auto; }
+    #main-content { margin-top: 2.4rem !important; padding-top: 0 !important; }
+    #client-stats .mini-stat-card { height: 100%; min-height: 86px; }
+    #client-stats .mini-stat-card > div { min-width: 0; }
+    #client-stats .mini-stat-card small,
+    #client-stats .mini-stat-card strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .recent-section-actions { min-width: 0; }
+
+    /* Flight cards remain readable at 320–430px. */
+    .flight-deal-body { padding: 16px 14px 15px; }
+    .route-modern {
+        grid-template-columns: minmax(0, 1fr) 62px minmax(0, 1fr);
+        gap: 8px;
+    }
+    .airport-block { min-width: 0; }
+    .airport-block h3 { font-size: clamp(1.3rem, 7vw, 1.65rem); }
+    .airport-block span { max-width: 100%; font-size: .72rem; }
+    .route-plane { min-width: 0; font-size: .66rem; }
+    .route-plane i { padding-inline: 6px; }
+    .flight-info-grid { gap: 8px; }
+    .flight-info-grid small,
+    .price-modern-grid small { font-size: .67rem; }
+    .flight-info-grid strong { font-size: .8rem; overflow-wrap: anywhere; }
+    .price-modern-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+    .price-modern-grid > div:nth-child(3) { grid-column: 1 / -1; }
+    .price-current, .price-target, .price-saving { font-size: 1rem; }
+    .flight-card-meta { gap: 7px; }
+    .flight-card-meta > * { min-width: 0; }
+    .guest-card-recommendation { grid-template-columns: 31px minmax(0, 1fr); }
+    .card-detail-cue { min-width: 0; }
+    .card-detail-cue span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card-action-grid-pro .btn {
+        min-width: 0;
+        white-space: normal;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .saved-offcanvas { --bs-offcanvas-width: min(420px, 100vw); }
+    .saved-offcanvas .offcanvas-header,
+    .flight-detail-header { gap: 10px; }
+    .saved-offcanvas-title,
+    .flight-detail-heading { flex: 1 1 auto; min-width: 0; }
+    .saved-offcanvas-title > div,
+    .flight-detail-heading > div { min-width: 0; }
+    .saved-offcanvas-title h5,
+    .flight-detail-heading h5 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .main-footer { margin-top: 52px; padding: 46px 0 24px; }
+    .main-footer .container { padding-inline: 18px; }
+    .footer-bottom { text-align: center; }
+}
+
+/* ---------- Compact phones ---------- */
+@media (max-width: 575.98px) {
+    body:not(.admin-page):not(.admin-login-page) .navbar-brand {
+        font-size: 1rem !important;
+        max-width: 132px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar-brand i { margin-right: 6px !important; }
+    .lang-switch {
+        width: 76px;
+        min-width: 76px !important;
+        max-width: 76px !important;
+        padding: 6px 23px 6px 8px;
+        font-size: .72rem;
+    }
+    .saved-flights-button,
+    .smart-theme-control {
+        width: 39px;
+        min-width: 39px;
+        height: 39px;
+        min-height: 39px;
+        flex: 0 0 39px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar a.btn {
+        width: 39px;
+        height: 39px;
+        flex-basis: 39px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section {
+        padding: 88px 0 102px;
+    }
+    body:not(.admin-page):not(.admin-login-page) .hero-section h1 { font-size: clamp(1.58rem, 8vw, 2rem); }
+    body:not(.admin-page):not(.admin-login-page) .hero-section p { font-size: .88rem; }
+    .guest-pro-search-shell { padding: 11px; border-radius: 17px; }
+    .guest-quick-filters { width: calc(100% + 2px); }
+    .quick-filter-chip { padding: 7px 11px; font-size: .74rem; }
+    .guest-toolbar-actions { width: 100%; }
+    .guest-filter-toggle { width: 100%; flex: 1 1 100%; }
+    .advanced-filter-panel { padding: 13px; border-radius: 15px; }
+    .guest-section-toolbar { gap: 12px; }
+    .guest-section-toolbar h4 { font-size: 1.08rem; }
+    .guest-section-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+    }
+    .guest-data-source { justify-content: center; min-width: 0; padding-inline: 9px; }
+    .guest-section-actions .btn { white-space: nowrap; padding-inline: 12px !important; }
+    #client-stats { --bs-gutter-x: .75rem; --bs-gutter-y: .75rem; }
+    #client-stats .mini-stat-card { min-height: 82px; padding: 12px; }
+    #client-stats .mini-stat-card > span { flex: 0 0 38px; width: 38px; height: 38px; }
+    #client-stats .mini-stat-card small { font-size: .6rem; }
+    #client-stats .mini-stat-card strong { font-size: .95rem; }
+    .recent-count { max-width: 52%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .recent-section-actions .btn { white-space: nowrap; }
+
+    .guest-pro-card .flight-deal-cover { min-height: 166px !important; }
+    .guest-pro-card .flight-deal-cover > .airline-brand {
+        inset: auto 60px 12px 12px !important;
+    }
+    .guest-pro-card .airline-brand .airline-card-logo {
+        flex-basis: 43px !important;
+        width: 43px !important;
+        height: 43px !important;
+    }
+    .route-modern { grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr); }
+    .flight-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .price-progress-wrap { margin-top: 11px; padding-top: 10px; }
+    .card-action-grid-pro { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .card-action-grid-pro .card-booking-btn { grid-column: 1 / -1; }
+    .card-action-grid-pro .btn { min-height: 42px; padding: 8px 6px; font-size: .68rem; }
+
+    .flight-detail-offcanvas,
+    .saved-offcanvas { --bs-offcanvas-width: 100vw; }
+    .flight-detail-header,
+    .saved-offcanvas .offcanvas-header {
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
+    }
+    .flight-detail-heading-icon,
+    .saved-offcanvas-title > span { flex: 0 0 auto; }
+    .detail-route-card {
+        grid-template-columns: minmax(0, 1fr) 68px minmax(0, 1fr);
+        gap: 7px;
+        padding: 13px 10px;
+    }
+    .detail-route-line small { font-size: .58rem; }
+    .detail-airport strong { font-size: 1.32rem; }
+    .detail-airport span { font-size: .65rem; }
+    .detail-airport b { font-size: .76rem; }
+    .detail-section { padding: 14px; }
+    .detail-section-title > div { min-width: 0; flex-wrap: wrap; }
+    .detail-progress-copy { flex-wrap: wrap; }
+
+    /* Admin: one-column controls, compact content, card-based data rows. */
+    .admin-page { min-width: 0 !important; }
+    .admin-sidebar {
+        width: min(292px, calc(100vw - 34px));
+        padding: max(16px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+    }
+    .admin-topbar {
+        position: sticky;
+        min-height: 0;
+        padding: 9px 12px;
+        padding-top: max(9px, env(safe-area-inset-top));
+    }
+    .admin-topbar > .d-flex:first-child { width: 100%; }
+    .admin-current-section { max-width: min(54vw, 190px); }
+    .admin-topbar-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(72px, auto) 40px 40px minmax(40px, auto);
+        gap: 7px;
+        overflow: visible;
+    }
+    .admin-api-chip { min-width: 0 !important; width: 100%; }
+    .admin-user-menu { min-width: 40px; justify-content: center; padding: 4px; }
+    .admin-user-menu::after,
+    .admin-user-copy { display: none; }
+    .admin-content { padding: 14px 10px 34px; }
+    .admin-hero-panel { padding: 21px 18px; border-radius: 19px; }
+    .admin-hero-panel h2 { font-size: 1.25rem; line-height: 1.25; }
+    .admin-hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .admin-hero-actions .btn { min-width: 0; padding-inline: 10px !important; white-space: normal; }
+    .admin-stat-card { min-height: 100px; padding: 13px; }
+    .admin-data-health { padding: 15px; }
+    .admin-data-health-grid { grid-template-columns: 1fr !important; }
+    .admin-panel { padding: 15px; border-radius: 17px; }
+    .admin-panel-heading { gap: 10px; }
+    .admin-panel-heading .admin-panel-badge { align-self: flex-start; }
+    .admin-preview-card { grid-template-columns: 1fr; }
+    .admin-form-grid { grid-template-columns: 1fr !important; }
+    .admin-form-actions { display: grid; grid-template-columns: 1fr; }
+    .admin-data-actions { grid-template-columns: 1fr 1fr; }
+    .admin-filter-bar { gap: 9px; }
+    .admin-flight-table tbody td {
+        grid-template-columns: 86px minmax(0, 1fr);
+        gap: 9px;
+    }
+    .admin-flight-identity { align-items: flex-start; }
+    .admin-route-meta { flex-wrap: wrap; }
+    .admin-row-actions { justify-content: flex-start; }
+    .admin-table-footer { gap: 6px; }
+
+    /* Login: preserve useful vertical space without shrinking controls. */
+    .login-panel {
+        min-height: 100dvh;
+        padding: 78px 16px max(28px, env(safe-area-inset-bottom));
+    }
+    .login-panel-tools { top: max(14px, env(safe-area-inset-top)); right: 16px; gap: 6px; }
+    .login-tool-select { width: 76px; max-width: 76px; }
+    .login-theme-switch button { width: 29px; height: 29px; }
+    .login-mobile-brand { margin-bottom: 24px; }
+    .login-form-wrap h2 { font-size: clamp(1.55rem, 8vw, 2rem); }
+    .login-form-wrap > p { margin-bottom: 24px; }
+    .login-input-wrap .form-control { min-height: 50px; }
+}
+
+/* Very narrow headers: keep every action visible without page overflow. */
+@media (max-width: 374.98px) {
+    body:not(.admin-page):not(.admin-login-page) .navbar-brand {
+        max-width: 32px;
+        font-size: 0 !important;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar-brand i {
+        margin: 0 !important;
+        font-size: 1.05rem;
+    }
+    body:not(.admin-page):not(.admin-login-page) .navbar > .container > .d-flex { gap: 5px !important; }
+    .lang-switch { width: 72px; min-width: 72px !important; max-width: 72px !important; }
+    .saved-flights-button,
+    .smart-theme-control,
+    body:not(.admin-page):not(.admin-login-page) .navbar a.btn {
+        width: 37px;
+        min-width: 37px;
+        height: 37px;
+        min-height: 37px;
+        flex-basis: 37px;
+    }
+}
+
+/* 320–339px devices use a deliberately simpler one-column layout. */
+@media (max-width: 339.98px) {
+    .guest-section-actions { grid-template-columns: 1fr; }
+    .guest-section-actions .btn,
+    .guest-data-source { width: 100%; }
+    #client-stats > [class*="col-"] { width: 100%; }
+    #client-stats .mini-stat-card { min-height: 72px; }
+    .route-modern { grid-template-columns: minmax(0, 1fr) 46px minmax(0, 1fr); gap: 5px; }
+    .route-plane small { font-size: .56rem; }
+    .flight-info-grid { grid-template-columns: 1fr; }
+    .price-modern-grid { grid-template-columns: 1fr; }
+    .price-modern-grid > div:nth-child(3) { grid-column: auto; }
+    .admin-topbar-actions { grid-template-columns: minmax(64px, 1fr) repeat(3, 38px); }
+    .admin-hero-actions { grid-template-columns: 1fr; }
+    .admin-data-actions { grid-template-columns: 1fr; }
+    .admin-data-actions .btn:last-child { grid-column: auto; }
+    .admin-flight-table tbody td { grid-template-columns: 1fr; gap: 4px; }
+}
+
+/* Short landscape screens: avoid wasting most of the viewport above content. */
+@media (max-height: 560px) and (orientation: landscape) and (max-width: 991.98px) {
+    body:not(.admin-page):not(.admin-login-page) .hero-section { padding: 78px 0 88px; }
+    body:not(.admin-page):not(.admin-login-page) .hero-section p { display: none; }
+    .login-panel { align-items: flex-start; padding-top: 72px; }
+    .login-mobile-brand { margin-bottom: 16px; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .ticket-card:hover,
+    .flight-deal-card:hover,
+    .admin-stat-card:hover,
+    .knowledge-card:hover { transform: none !important; }
+}

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Vietravel Airlines</title>
+  <desc id="desc">Biểu trưng cánh bay cách điệu màu vàng cam</desc>
+  <defs>
+    <linearGradient id="vuGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe16a"/>
+      <stop offset="0.5" stop-color="#ffbd18"/>
+      <stop offset="1" stop-color="#f28b00"/>
+    </linearGradient>
+    <linearGradient id="vuNavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#163f75"/>
+      <stop offset="1" stop-color="#071d3c"/>
+    </linearGradient>
+</defs>
+  <circle cx="64" cy="64" r="55" fill="url(#vuNavy)"/>
+  <g>
+    <path d="M24 65 104 31 75 101 62 72 24 65Z" fill="url(#vuGold)"/>
+    <path d="M62 72 104 31 73 82Z" fill="#fff1a8" opacity=".8"/>
+    <path d="M24 65 62 72 44 86Z" fill="#f39a00"/>
+  </g>
+</svg>

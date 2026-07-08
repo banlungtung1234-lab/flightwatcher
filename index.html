@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="FlightWatcher - tìm kiếm chuyến bay, theo dõi mức giá mục tiêu và truy cập website hãng bay chính thức." name="description"/>
+<meta content="index,follow" name="robots"/>
+<meta content="website" property="og:type"/>
+<meta content="FlightWatcher - Smart Flight Deals" property="og:title"/>
+<meta content="Tìm kiếm chuyến bay, lưu lựa chọn và theo dõi mức giá mục tiêu trên một giao diện hiện đại." property="og:description"/>
+<meta content="favicon.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="#f6f8fc" name="theme-color"/>
+<script>
+        (() => {
+            const legacy = localStorage.getItem('theme');
+            const mode = localStorage.getItem('theme_mode') || ((legacy === 'dark' || legacy === 'light') ? legacy : 'auto');
+            const dark = mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const resolved = dark ? 'dark' : 'light';
+            document.documentElement.dataset.theme = resolved;
+            document.documentElement.dataset.themeMode = mode;
+            document.documentElement.style.colorScheme = resolved;
+        })();
+    </script>
+<title>FlightWatcher - Đặt Vé Thông Minh</title>
+<script src="js/runtime.js?v=8.8.0"></script>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin/>
+<link href="vendor/bootstrap.min.css?v=8.8.0" rel="stylesheet"/>
+<script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest', observeMutations: true, showMissingIcons: false };</script>
+<script defer src="vendor/fontawesome/all.min.js?v=8.8.0"></script>
+<link href="favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="site.webmanifest" rel="manifest"/>
+<link href="css/style.css?v=8.8.0" rel="stylesheet"/>
+<link href="css/guest-pro.css?v=8.8.0" rel="stylesheet"/>
+<link href="css/responsive.css?v=8.9.0" rel="stylesheet"/>
+</head>
+<body>
+<a class="skip-link" data-i18n="skip_content" href="#main-content">Bỏ qua tới nội dung chính</a>
+<div aria-live="polite" class="network-status" id="network-status" role="status"><i class="fa-solid fa-wifi"></i><span data-i18n="network_offline">Bạn đang ngoại tuyến. Dữ liệu có thể chưa được cập nhật.</span></div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-transparent position-absolute w-100 z-3 mt-2">
+<div class="container d-flex justify-content-between align-items-center">
+<a class="navbar-brand fw-bold fs-4 text-white" href="index.html">
+<i class="fa-solid fa-plane-up me-2 text-warning"></i>FlightWatcher
+            </a>
+<div class="d-flex align-items-center gap-3">
+<select class="lang-switch" id="lang-selector">
+<option value="vi">🇻🇳 VN</option>
+<option value="en">🇬🇧 EN</option>
+<option value="zh">🇨🇳 中文</option>
+<option value="de">🇩🇪 DE</option>
+<option value="ru">🇷🇺 RU</option>
+<option value="th">🇹🇭 ไทย</option>
+</select>
+<button aria-controls="savedFlightsOffcanvas" class="saved-flights-button" data-bs-target="#savedFlightsOffcanvas" data-bs-toggle="offcanvas" data-guest-title="guest_saved_flights" id="saved-flights-button" type="button">
+<i class="fa-regular fa-heart"></i>
+<span class="badge rounded-pill bg-danger" hidden="" id="saved-nav-count">0</span>
+</button>
+<div class="dropdown">
+<button aria-expanded="false" class="smart-theme-control dropdown-toggle" data-bs-toggle="dropdown" data-i18n-title="theme_toggle" id="theme-toggle" type="button">
+<i class="fa-solid fa-circle-half-stroke" id="theme-icon"></i>
+<span class="d-none d-lg-inline" data-i18n="theme_auto" id="theme-label">Tự động</span>
+</button>
+<ul aria-labelledby="theme-toggle" class="dropdown-menu dropdown-menu-end theme-menu shadow border-0">
+<li><button class="dropdown-item theme-option" data-theme-option="auto" type="button"><i class="fa-solid fa-circle-half-stroke"></i><span data-i18n="theme_auto">Tự động</span><small data-i18n="theme_auto_hint">Theo thiết bị</small></button></li>
+<li><button class="dropdown-item theme-option" data-theme-option="light" type="button"><i class="fa-regular fa-sun"></i><span data-i18n="theme_light">Sáng</span><small data-i18n="theme_light_hint">Tương phản rõ</small></button></li>
+<li><button class="dropdown-item theme-option" data-theme-option="dark" type="button"><i class="fa-regular fa-moon"></i><span data-i18n="theme_dark">Tối</span><small data-i18n="theme_dark_hint">Dịu mắt ban đêm</small></button></li>
+</ul>
+</div>
+<a class="btn btn-light fw-bold rounded-pill px-4 shadow-sm text-primary" data-i18n="nav_admin" href="admin.html"><i class="fa-solid fa-user-gear me-1"></i> Quản Trị Hệ Thống</a>
+</div>
+</div>
+</nav>
+<div class="hero-section text-center position-relative overflow-hidden">
+<div class="container position-relative z-2">
+<h1 class="fw-bold display-5 mb-3 text-white" data-i18n="hero_title">Khám Phá Thế Giới Với Giá Rẻ Nhất</h1>
+<p class="lead text-white-50 mb-4 fw-normal" data-i18n="hero_sub">Theo dõi giá vé trực tuyến và nhanh chóng nhận biết khi giá chạm mức mục tiêu.</p>
+</div>
+</div>
+<div class="container position-relative z-3" style="margin-top: -55px;">
+<div class="search-box-container guest-pro-search-shell mx-auto">
+<div class="row g-3 align-items-center search-primary-row">
+<div class="col-md-5">
+<div class="input-group">
+<span class="input-group-text border-0 bg-transparent text-primary ps-3 fs-5"><i class="fa-solid fa-location-dot"></i></span>
+<input class="form-control border-0 shadow-none bg-transparent" data-i18n="search_ph" id="search-input" placeholder="Bạn muốn bay đi đâu? (VD: Đà Nẵng, Sài Gòn)..." type="text"/>
+</div>
+</div>
+<div class="col-md-4">
+<div class="input-group position-relative">
+<div class="position-absolute top-50 start-0 translate-middle-y d-none d-md-block" style="width: 1px; height: 30px; background: var(--border-color); z-index: 10;"></div>
+<span class="input-group-text border-0 bg-transparent text-primary ps-4 fs-5"><i class="fa-solid fa-plane"></i></span>
+<select class="form-select border-0 shadow-none bg-transparent fw-bold" id="filter-airline">
+<option data-i18n="filter_all" value="all">Tất cả hãng bay</option>
+<option value="Vietnam Airlines">Vietnam Airlines</option>
+<option value="VietJet Air">VietJet Air</option>
+<option value="Bamboo Airways">Bamboo Airways</option>
+</select>
+</div>
+</div>
+<div class="col-md-3">
+<div class="input-group position-relative">
+<div class="position-absolute top-50 start-0 translate-middle-y d-none d-md-block" style="width: 1px; height: 30px; background: var(--border-color); z-index: 10;"></div>
+<span class="input-group-text border-0 bg-transparent text-primary ps-4 fs-5"><i class="fa-solid fa-sort"></i></span>
+<select class="form-select border-0 shadow-none bg-transparent fw-bold" id="sort-price">
+<option data-i18n="sort_def" value="default">Bộ lọc giá cả</option>
+<option data-i18n="sort_asc" value="asc">Ưu tiên giá rẻ nhất</option>
+<option data-i18n="sort_desc" value="desc">Ưu tiên giá cao nhất</option>
+</select>
+</div>
+</div>
+</div>
+<div class="guest-filter-toolbar">
+<div aria-label="Quick filters" class="guest-quick-filters" role="group">
+<button class="quick-filter-chip active" data-quick-filter="all" type="button"><i class="fa-solid fa-layer-group me-1"></i><span>Tất cả</span></button>
+<button class="quick-filter-chip" data-quick-filter="deal" type="button"><i class="fa-solid fa-fire-flame-curved me-1"></i><span>Deal tốt nhất</span></button>
+<button class="quick-filter-chip" data-quick-filter="upcoming" type="button"><i class="fa-regular fa-calendar-check me-1"></i><span>Sắp khởi hành</span></button>
+<button class="quick-filter-chip" data-quick-filter="international" type="button"><i class="fa-solid fa-earth-asia me-1"></i><span>Quốc tế</span></button>
+<button class="quick-filter-chip" data-quick-filter="watch" type="button"><i class="fa-solid fa-bell me-1"></i><span>Đang theo dõi</span></button>
+</div>
+<div class="guest-toolbar-actions">
+<button aria-controls="advancedFilterPanel" aria-expanded="false" class="guest-filter-toggle" data-bs-target="#advancedFilterPanel" data-bs-toggle="collapse" data-guest-title="guest_filter_toggle" type="button">
+<i class="fa-solid fa-sliders me-1"></i><span data-guest-i18n="guest_advanced_filters">Bộ lọc nâng cao</span><span class="badge text-bg-primary" hidden="" id="advanced-filter-count">0</span>
+</button>
+<div aria-label="View mode" class="guest-view-switch" role="group">
+<button aria-pressed="true" class="view-mode-button active" data-guest-title="guest_view_grid" data-view-mode="grid" type="button"><i class="fa-solid fa-grip"></i></button>
+<button aria-pressed="false" class="view-mode-button" data-guest-title="guest_view_list" data-view-mode="list" type="button"><i class="fa-solid fa-list"></i></button>
+</div>
+</div>
+</div>
+<div class="collapse" id="advancedFilterPanel">
+<div class="advanced-filter-panel">
+<div class="advanced-filter-grid">
+<div class="advanced-filter-field">
+<label for="filter-from"><i class="fa-solid fa-plane-departure me-1"></i><span data-guest-i18n="guest_filter_origin">Điểm đi</span></label>
+<select class="form-select" id="filter-from"><option value="all">Tất cả</option></select>
+</div>
+<div class="advanced-filter-field">
+<label for="filter-to"><i class="fa-solid fa-plane-arrival me-1"></i><span data-guest-i18n="guest_filter_destination">Điểm đến</span></label>
+<select class="form-select" id="filter-to"><option value="all">Tất cả</option></select>
+</div>
+<div class="advanced-filter-field">
+<label for="filter-date-from"><i class="fa-regular fa-calendar me-1"></i><span data-guest-i18n="guest_filter_date_from">Từ ngày</span></label>
+<input class="form-control" id="filter-date-from" type="date"/>
+</div>
+<div class="advanced-filter-field">
+<label for="filter-date-to"><i class="fa-regular fa-calendar-check me-1"></i><span data-guest-i18n="guest_filter_date_to">Đến ngày</span></label>
+<input class="form-control" id="filter-date-to" type="date"/>
+</div>
+<div class="advanced-filter-field">
+<div class="filter-price-head"><label for="filter-price-max"><i class="fa-solid fa-money-bill-wave me-1"></i><span data-guest-i18n="guest_filter_max_price">Giá tối đa</span></label><strong id="filter-price-label">Không giới hạn</strong></div>
+<input class="form-range" id="filter-price-max" max="5000000" min="0" step="100000" type="range" value="5000000"/>
+</div>
+<div class="advanced-filter-field">
+<label for="filter-cabin"><i class="fa-solid fa-couch me-1"></i><span data-guest-i18n="guest_filter_cabin">Hạng ghế</span></label>
+<select class="form-select" id="filter-cabin"><option value="all">Tất cả</option></select>
+</div>
+<div class="advanced-filter-field">
+<label for="filter-status"><i class="fa-solid fa-signal me-1"></i><span data-guest-i18n="guest_filter_status">Trạng thái</span></label>
+<select class="form-select" id="filter-status"><option value="all">Tất cả</option></select>
+</div>
+<div class="advanced-filter-field d-flex align-items-end">
+<button class="btn btn-outline-secondary w-100 rounded-3 fw-bold" id="btn-reset-filters" type="button"><i class="fa-solid fa-rotate-left me-1"></i><span data-guest-i18n="guest_reset_filters">Đặt lại bộ lọc</span></button>
+</div>
+</div>
+<div class="advanced-filter-footer">
+<div class="form-check form-switch">
+<input class="form-check-input" id="filter-favorites" role="switch" type="checkbox"/>
+<label class="form-check-label" data-guest-i18n="guest_only_saved" for="filter-favorites">Chỉ chuyến đã lưu</label>
+</div>
+<div class="filter-result-meta"><strong id="guest-result-summary">0 kết quả phù hợp</strong><span>•</span><span id="guest-active-filter-summary">0 bộ lọc đang dùng</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<main class="container mt-5 pt-4 mb-5" id="main-content">
+<div class="guest-section-toolbar mb-4 border-bottom pb-3">
+<div>
+<h4 class="fw-bold mb-1 text-primary"><i class="fa-solid fa-ticket me-2"></i><span data-i18n="title_list">Chuyến Bay Khuyến Mãi Nổi Bật</span></h4>
+<small aria-live="polite" class="text-muted" data-i18n="last_sync_connecting" id="last-sync-time">Cập nhật lần cuối: Đang kết nối...</small>
+</div>
+<div class="guest-section-actions">
+<span class="guest-data-source source-live" id="guest-data-source"><i class="fa-solid fa-cloud-arrow-down"></i><span>Dữ liệu trực tiếp</span></span>
+<button class="btn btn-outline-primary rounded-pill shadow-sm fw-bold px-3" id="btn-sync">
+<i class="fa-solid fa-rotate-right me-1" id="sync-icon"></i> <span data-i18n="btn_sync">Tải lại data</span>
+</button>
+</div>
+</div>
+<div class="row g-3 mb-4" id="client-stats">
+<div class="col-6 col-lg-3">
+<div class="mini-stat-card">
+<span><i class="fa-solid fa-plane-departure"></i></span>
+<div><small data-i18n="stat_total">Tổng chuyến</small><strong id="public-stat-total">0</strong></div>
+</div>
+</div>
+<div class="col-6 col-lg-3">
+<div class="mini-stat-card">
+<span><i class="fa-solid fa-fire-flame-curved"></i></span>
+<div><small data-i18n="stat_deal">Deal ngon</small><strong id="public-stat-deal">0</strong></div>
+</div>
+</div>
+<div class="col-6 col-lg-3">
+<div class="mini-stat-card">
+<span><i class="fa-solid fa-bell"></i></span>
+<div><small data-i18n="stat_watch">Đang theo dõi</small><strong id="public-stat-watch">0</strong></div>
+</div>
+</div>
+<div class="col-6 col-lg-3">
+<div class="mini-stat-card">
+<span><i class="fa-solid fa-tags"></i></span>
+<div><small data-i18n="stat_min">Giá tốt nhất</small><strong id="public-stat-min">0 đ</strong></div>
+</div>
+</div>
+</div>
+<section class="recent-section" hidden="" id="recent-section">
+<div class="recent-section-header">
+<div class="recent-section-heading"><h5><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i><span data-guest-i18n="guest_recent_title">Bạn vừa xem</span></h5><p data-guest-i18n="guest_recent_sub">Tiếp tục xem nhanh các chuyến bay gần đây.</p></div>
+<div class="recent-section-actions"><span class="recent-count" id="recent-count">0 chuyến đã xem</span><button class="btn btn-sm btn-outline-danger rounded-pill" id="btn-clear-recent" type="button"><i class="fa-regular fa-trash-can me-1"></i><span data-guest-i18n="guest_recent_clear">Xóa lịch sử</span></button></div>
+</div>
+<div class="recent-flights-grid" id="recent-flights"></div>
+</section>
+<div class="text-center py-5" id="skeleton-loader">
+<div class="radar-scan"></div>
+<h5 class="mt-3 fw-bold text-primary" data-i18n="loading">Đang đồng bộ dữ liệu đám mây MockAPI...</h5>
+</div>
+<div class="row g-4" id="flights-container" style="display: none;"></div>
+<div class="text-center mt-4" id="load-more-wrap" style="display: none;">
+<button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="btn-load-more">
+<i class="fa-solid fa-plus me-1"></i> <span data-i18n="load_more">Xem thêm chuyến bay</span>
+</button>
+</div>
+</main>
+<button aria-label="Lên đầu trang" class="back-to-top" data-i18n-title="back_to_top" id="back-to-top" type="button"><i class="fa-solid fa-arrow-up"></i></button>
+<footer class="main-footer">
+<div class="container">
+<div class="row g-4">
+<div class="col-lg-4 col-md-6">
+<h5 class="navbar-brand fw-bold fs-4 text-white mb-3"><i class="fa-solid fa-plane-up me-2 text-warning"></i>FlightWatcher</h5>
+<p class="small opacity-75" data-i18n="footer_desc">Tìm kiếm chuyến bay, theo dõi mức giá mục tiêu và truy cập nhanh website chính thức của hãng.</p>
+<div class="footer-trust-list mt-3">
+<span><i class="fa-solid fa-cloud-arrow-down"></i><span data-i18n="footer_live_data">Dữ liệu trực tuyến</span></span>
+<span><i class="fa-solid fa-shield-halved"></i><span data-i18n="footer_official_links">Liên kết hãng bay chính thức</span></span>
+</div>
+</div>
+<div class="col-lg-2 col-md-6 col-6">
+<h6 class="footer-title" data-i18n="footer_about">Khám phá</h6>
+<ul class="footer-links">
+<li><a data-i18n="footer_company" href="#main-content">Ưu đãi nổi bật</a></li>
+<li><button class="footer-link-button" data-bs-target="#savedFlightsOffcanvas" data-bs-toggle="offcanvas" data-i18n="footer_ai" type="button">Chuyến bay đã lưu</button></li>
+<li><button class="footer-link-button" data-footer-action="watch-filter" data-i18n="footer_careers" type="button">Đang theo dõi giá</button></li>
+<li><a data-i18n="footer_media" href="mailto:banlungtung1234@gmail.com">Hỗ trợ khách hàng</a></li>
+</ul>
+</div>
+<div class="col-lg-2 col-md-6 col-6">
+<h6 class="footer-title" data-i18n="footer_partner">Đối Tác Liên Kết</h6>
+<ul class="footer-links">
+<li><a href="https://www.vietnamairlines.com/vn/vi/home" rel="noopener noreferrer" target="_blank">Vietnam Airlines</a></li>
+<li><a href="https://www.vietjetair.com/" rel="noopener noreferrer" target="_blank">VietJet Air</a></li>
+<li><a href="https://www.bambooairways.com/" rel="noopener noreferrer" target="_blank">Bamboo Airways</a></li>
+<li><a data-i18n="footer_tourism" href="https://vietnamtourism.gov.vn/" rel="noopener noreferrer" target="_blank">Tổng cục Du lịch Việt Nam</a></li>
+</ul>
+</div>
+<div class="col-lg-4 col-md-6">
+<h6 class="footer-title" data-i18n="footer_news">Bản tin khuyến mãi</h6>
+<p class="small opacity-75" data-i18n="footer_news_sub">Đăng ký email để lưu thông tin nhận ưu đãi và cập nhật giá trên thiết bị này.</p>
+<div class="input-group mt-3">
+<input class="form-control border-0" data-i18n-placeholder="newsletter_placeholder" id="newsletter-email" placeholder="Nhập địa chỉ email..." style="border-radius: 12px 0 0 12px !important; background: rgba(255,255,255,0.1) !important; color:#fff !important;" type="email"/>
+<button class="btn btn-primary fw-bold px-3" data-i18n="btn_sub" id="btn-subscribe" style="border-radius: 0 12px 12px 0 !important;" type="button">Đăng ký</button>
+</div>
+</div>
+</div>
+<div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+<div data-i18n="footer_copy">© 2026 FlightWatcher. Bảo lưu mọi quyền.</div>
+<div class="d-flex gap-3 flex-wrap justify-content-center">
+<button class="legal-footer-link" data-bs-target="#termsModal" data-bs-toggle="modal" data-i18n="footer_terms" type="button">
+                        Điều khoản dịch vụ
+                    </button>
+<span aria-hidden="true" class="footer-legal-divider"></span>
+<button class="legal-footer-link" data-bs-target="#privacyModal" data-bs-toggle="modal" data-i18n="footer_privacy" type="button">
+                        Chính sách bảo mật
+                    </button>
+</div>
+</div>
+</div>
+</footer>
+<div aria-labelledby="savedFlightsOffcanvasLabel" class="offcanvas offcanvas-end saved-offcanvas" id="savedFlightsOffcanvas" tabindex="-1">
+<div class="offcanvas-header">
+<div class="saved-offcanvas-title"><span><i class="fa-solid fa-heart"></i></span><div><h5 class="offcanvas-title mb-0" data-guest-i18n="guest_saved_flights" id="savedFlightsOffcanvasLabel">Chuyến bay đã lưu</h5><small><span id="saved-count">0</span> <span data-guest-i18n="guest_saved_short">Đã lưu</span></small></div></div>
+<button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
+</div>
+<div class="offcanvas-body" id="saved-flights-content"></div>
+</div>
+<div aria-labelledby="flightDetailOffcanvasLabel" class="offcanvas offcanvas-end flight-detail-offcanvas" data-bs-backdrop="true" data-bs-scroll="false" id="flightDetailOffcanvas" role="dialog" tabindex="-1">
+<div class="offcanvas-header flight-detail-header">
+<div class="flight-detail-heading">
+<span class="flight-detail-heading-icon"><i class="fa-solid fa-plane-departure"></i></span>
+<div><small data-guest-i18n="guest_detail_eyebrow">THÔNG TIN CHUYẾN BAY</small><h5 class="offcanvas-title mb-0" data-guest-i18n="guest_detail_title" id="flightDetailOffcanvasLabel">Chi tiết chuyến bay</h5></div>
+</div>
+<button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
+</div>
+<div class="offcanvas-body flight-detail-body" id="flight-detail-content"></div>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+<div class="toast text-white border-0 rounded-3 shadow" id="clientToast" role="alert">
+<div class="d-flex">
+<div class="toast-body fw-bold" data-i18n="toast_success" id="client-toast-message">Thành công!</div>
+<button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" data-i18n-aria-label="close" type="button"></button>
+</div>
+</div>
+</div>
+
+
+
+<div aria-hidden="true" aria-labelledby="termsModalLabel" class="modal fade" id="termsModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+<div class="modal-content legal-modal border-0 shadow-lg">
+<div class="legal-modal-header legal-terms-header">
+<div class="legal-header-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+<div class="legal-header-copy">
+<span class="legal-eyebrow" id="termsEyebrow"></span>
+<h2 class="modal-title" id="termsModalLabel"></h2>
+<p id="termsSubtitle"></p>
+</div>
+<div aria-label="Legal document controls" class="legal-header-actions" data-i18n-aria-label="legal_controls">
+<div aria-label="Document language" class="legal-language-switcher" data-i18n-aria-label="legal_document_language" role="group">
+<button class="legal-language-option" data-legal-kind="terms" data-legal-lang="vi" type="button">VI</button>
+<button class="legal-language-option" data-legal-kind="terms" data-legal-lang="en" type="button">EN</button>
+<button class="legal-language-option" data-legal-kind="terms" data-legal-lang="zh" type="button">中文</button>
+<button class="legal-language-option" data-legal-kind="terms" data-legal-lang="de" type="button">DE</button>
+<button class="legal-language-option" data-legal-kind="terms" data-legal-lang="ru" type="button">RU</button>
+<button class="legal-language-option" data-legal-kind="terms" data-legal-lang="th" type="button">ไทย</button>
+</div>
+<button aria-label="Print" class="legal-header-button" data-i18n-title="legal_print_title" data-legal-action="print" data-legal-kind="terms" type="button"><i class="fa-solid fa-print"></i></button>
+<button class="btn-close btn-close-white legal-close" data-bs-dismiss="modal" data-i18n-aria-label="close" type="button"></button>
+</div>
+</div>
+<div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="legal-reading-progress" role="progressbar"><span id="termsReadingProgress"></span></div>
+<div class="modal-body legal-modal-body" data-legal-kind="terms" id="termsModalBody">
+<div id="termsMeta"></div>
+<div id="termsLegalBody"></div>
+<div class="legal-consent-box">
+<div class="form-check">
+<input class="form-check-input" id="termsAccept" type="checkbox"/>
+<label class="form-check-label" for="termsAccept" id="termsConsentLabel"></label>
+</div>
+</div>
+</div>
+<div class="modal-footer legal-modal-footer">
+<button class="btn btn-light rounded-3 px-4 fw-bold" data-bs-dismiss="modal" id="termsCloseButton" type="button"></button>
+<button class="btn btn-primary rounded-3 px-4 fw-bold" data-bs-dismiss="modal" disabled="" id="termsAcceptButton" type="button"></button>
+</div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" aria-labelledby="privacyModalLabel" class="modal fade" id="privacyModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-scrollable modal-xl modal-dialog-centered">
+<div class="modal-content legal-modal border-0 shadow-lg">
+<div class="legal-modal-header legal-privacy-header">
+<div class="legal-header-icon"><i class="fa-solid fa-shield-halved"></i></div>
+<div class="legal-header-copy">
+<span class="legal-eyebrow" id="privacyEyebrow"></span>
+<h2 class="modal-title" id="privacyModalLabel"></h2>
+<p id="privacySubtitle"></p>
+</div>
+<div aria-label="Legal document controls" class="legal-header-actions" data-i18n-aria-label="legal_controls">
+<div aria-label="Document language" class="legal-language-switcher" data-i18n-aria-label="legal_document_language" role="group">
+<button class="legal-language-option" data-legal-kind="privacy" data-legal-lang="vi" type="button">VI</button>
+<button class="legal-language-option" data-legal-kind="privacy" data-legal-lang="en" type="button">EN</button>
+<button class="legal-language-option" data-legal-kind="privacy" data-legal-lang="zh" type="button">中文</button>
+<button class="legal-language-option" data-legal-kind="privacy" data-legal-lang="de" type="button">DE</button>
+<button class="legal-language-option" data-legal-kind="privacy" data-legal-lang="ru" type="button">RU</button>
+<button class="legal-language-option" data-legal-kind="privacy" data-legal-lang="th" type="button">ไทย</button>
+</div>
+<button aria-label="Print" class="legal-header-button" data-i18n-title="legal_print_title" data-legal-action="print" data-legal-kind="privacy" type="button"><i class="fa-solid fa-print"></i></button>
+<button class="btn-close btn-close-white legal-close" data-bs-dismiss="modal" data-i18n-aria-label="close" type="button"></button>
+</div>
+</div>
+<div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="legal-reading-progress" role="progressbar"><span id="privacyReadingProgress"></span></div>
+<div class="modal-body legal-modal-body" data-legal-kind="privacy" id="privacyModalBody">
+<div id="privacyMeta"></div>
+<div id="privacyLegalBody"></div>
+<div class="legal-consent-box">
+<div class="form-check">
+<input class="form-check-input" id="privacyAccept" type="checkbox"/>
+<label class="form-check-label" for="privacyAccept" id="privacyConsentLabel"></label>
+</div>
+</div>
+</div>
+<div class="modal-footer legal-modal-footer">
+<button class="btn btn-light rounded-3 px-4 fw-bold" data-bs-dismiss="modal" id="privacyCloseButton" type="button"></button>
+<button class="btn btn-success rounded-3 px-4 fw-bold" data-bs-dismiss="modal" disabled="" id="privacyAcceptButton" type="button"></button>
+</div>
+</div>
+</div>
+</div>
+<script src="vendor/jquery.min.js?v=8.8.0"></script>
+<script src="vendor/bootstrap.bundle.min.js?v=8.8.0"></script>
+<script src="js/api.js?v=8.8.0"></script>
+<script src="js/main.js?v=8.8.0"></script>
+<script src="js/guest-pro.js?v=8.8.0"></script>
+<script src="js/i18n-extra.js?v=8.8.0"></script>
+</body>
+</html>

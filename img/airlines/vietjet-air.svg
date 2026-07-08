@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">VietJet Air</title>
+  <desc id="desc">Biểu trưng chữ VJ cách điệu màu đỏ và vàng</desc>
+  <defs>
+    <linearGradient id="vjRed" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff4a4f"/>
+      <stop offset="1" stop-color="#d9182b"/>
+    </linearGradient>
+    <linearGradient id="vjGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffd84f"/>
+      <stop offset="1" stop-color="#ffad00"/>
+    </linearGradient>
+</defs>
+  <rect x="9" y="15" width="110" height="98" rx="28" fill="url(#vjRed)"/>
+  <path d="M19 88c30 8 58 6 89-11" fill="none" stroke="url(#vjGold)" stroke-width="7" stroke-linecap="round" opacity=".95"/>
+  <g>
+    <path d="M25 42h18l10 35 16-35h17L61 91H43L25 42Z" fill="#fff"/>
+    <path d="M77 42h19v29c0 9-3 15-9 19-5 3-12 4-22 3V80c5 1 9 1 11-1 1-1 2-4 2-8l-1-29Z" fill="#fff"/>
+  </g>
+  <circle cx="99" cy="36" r="6" fill="url(#vjGold)"/>
+</svg>
